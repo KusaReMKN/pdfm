@@ -9,10 +9,16 @@ TEMPDIR=`mktemp -d`
 TEMPBASE="$TEMPDIR/pdfm"
 TEMPHTML=`tempfile -s.html`
 
-printf 'Preparating ... '
+PDFPAGE=`pdfinfo $1 | grep "Pages" | awk '{ print $2 }'`
 
-pdftoppm -png $1 $TEMPBASE
+printf 'Preparating '
 
+for i in `seq $PDFPAGE`
+do
+	pdftoppm -f $i -l $i -png $1 $TEMPBASE && printf '.' &
+done
+wait
+printf ' '
 printf 'done.\n'
 
 cat << EOF > $TEMPHTML
